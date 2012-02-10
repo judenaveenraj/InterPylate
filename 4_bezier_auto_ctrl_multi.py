@@ -11,23 +11,26 @@ def main():
     bg=pygame.surface.Surface((500,500),0,24)
     clock=pygame.time.Clock()
     i=Curve("bezier")
-    i.set_passthru(((50,250),(450,250)))
-    i.set_control(((100,100),(300,100)))
+    i.set_passthru(((50,250),(250,300),(300,100)))
+    i.set_auto_control()
     steps=2
     points=i.yieldall(60)
-
+    #c1,c2=i.get_control()[0],i.get_control()[1]
+    print "control",i.get_control()
+    
     while 1:
         clock.tick(60)
         steps+=1
         if steps==60:
             steps=2
         bg.fill((255,255,255))
-        pygame.draw.aalines(bg,(0,0,0),0,list(points[i] for i in range(steps)))
-        pygame.draw.aalines(bg,(0,0,0),0,(points[0],points[steps]))
+        pygame.draw.aalines(bg,(0,0,0),0,points)#list(points[i] for i in range(steps)))
+        pygame.draw.aalines(bg,(0,0,0),0,(points[0],points[59]))
         pygame.draw.rect(bg,(255,0,0),Rect(50,250,5,5))
         pygame.draw.rect(bg,(255,0,0),Rect(450,250,5,5))
-        pygame.draw.rect(bg,(255,0,0),Rect(100,100,5,5))
-        pygame.draw.rect(bg,(255,0,0),Rect(300,100,5,5))
+        for point in i.get_control():
+            pygame.draw.rect(bg,(0,255,0),Rect(point[0],point[1],5,5))
+            
         
         screen.blit(bg,(0,0))
         pygame.display.update()
