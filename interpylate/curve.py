@@ -30,9 +30,12 @@ class Curve:
         if self.num_points > 2:
             self.auto_control_multi_bezier()
         
-            
+    
     def auto_control_multi_bezier(self):
-        n=self.num_points-1
+	"""Called when multiple points are present, 
+	bezier requested, without control points
+	"""
+	n=self.num_points-1
 	x=[]
 	y=[]	
 	
@@ -48,7 +51,21 @@ class Curve:
 	
 	x=self.get_first_ctrl_points(x)
 	y=self.get_first_ctrl_points(y)
-	
+	fcp=[]
+	scp=[]
+	rhs=[]
+	for i in range(n):
+	    #First Control Points
+	    fcp.append((x[i],y[i]))
+	    #Second Control Points
+	    if (i<(n-1)):
+		temp=(2*self.data[i + 1][0] - x[i + 1], 2*self.data[i + 1][1] - y[i + 1])
+		scp.append(temp)
+	    else:
+		temp=((self.data[n][0] + x[n - 1]) / 2, (self.data[n][1] + y[n - 1]) / 2)
+		scp.append(temp);
+	for a,b in zip(fcp,scp):
+	    rhs.append((a,b))
 	self.control=tuple(rhs)
 	   
     def get_first_ctrl_points(self,rhs):
@@ -64,7 +81,7 @@ class Curve:
 	    else:
 		b=3.5-tmp[i]		
 	    x[i] = (rhs[i] - x[i - 1]) / b
-	for i in range(n):
+	for i in range(1,n):
 	    try:
 		x[n - i - 1] -= tmp[n - i] * x[n - i]
 	    except:
@@ -76,18 +93,39 @@ class Curve:
     def get_control(self):
         return self.control
     
-    def make_points_with_control(self,t):
+    def make_points_with_control(self,t,point_id=-1):	
         if self.data and self.control:
-            bx=(numpy.power((1-t),3)*self.data[0][0])+(3*numpy.power((1-t),2)*t*self.control[0][0])+(3*(1-t)*numpy.power(t,2)*self.control[1][0])+(numpy.power(t,3)*self.data[1][0])
-            by=(numpy.power((1-t),3)*self.data[0][1])+(3*numpy.power((1-t),2)*t*self.control[0][1])+(3*(1-t)*numpy.power(t,2)*self.control[1][1])+(numpy.power(t,3)*self.data[1][1])
-        return (bx,by)
+	    
+	    if (point_id == -1):
+		bx=(numpy.power((1-t),3)*self.data[0][0])+(3*numpy.power((1-t),2)*t*self.control[0][0])+(3*(1-t)*numpy.power(t,2)*self.control[1][0])+(numpy.power(t,3)*self.data[1][0])
+		by=(numpy.power((1-t),3)*self.data[0][1])+(3*numpy.power((1-t),2)*t*self.control[0][1])+(3*(1-t)*numpy.power(t,2)*self.control[1][1])+(numpy.power(t,3)*self.data[1][1])
+	    if (point_id >= 0):
+		data=[self.data[point_id],self.data[point_id+1]]
+		control=self.control[point_id]
+		bx=(numpy.power((1-t),3)*data[0][0])+(3*numpy.power((1-t),2)*t*control[0][0])+(3*(1-t)*numpy.power(t,2)*control[1][0])+(numpy.power(t,3)*data[1][0])
+		by=(numpy.power((1-t),3)*data[0][1])+(3*numpy.power((1-t),2)*t*control[0][1])+(3*(1-t)*numpy.power(t,2)*control[1][1])+(numpy.power(t,3)*data[1][1])
+	print bx,by
+	temp=(bx,by)
+        return temp
+    
     
     def yieldall(self,steps):
         if self.mode==1:
             if not self.control:
                 self.set_auto_control()
             interv=1.0/(steps-1)
-            return tuple(self.make_points_with_control(i*interv) for i in range(steps))
-                
+	    a=[]
+	    #For only two points and bezier and with control points
+	    if len(self.data) == 2:
+		a=tuple(self.make_points_with_control(i*interv) for i in range(steps))
+	    
+	    #For more than two points and bezier and with control points
+	    elif (len(self.data)>2):
+		for c in range(len(self.data)-1):
+		    for i in range(steps):
+			a.append(self.make_points_with_control(i*interv,c))
+		print "points returned",a
+		return tuple(a)
             
+            return a
             
