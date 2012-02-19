@@ -1,4 +1,6 @@
 import numpy
+import catmull
+
 class Curve:
     def __init__(self,mode):
         self.mode=self.__get_mode(mode)
@@ -9,6 +11,8 @@ class Curve:
         self.rhs=[]
 	
     def set_passthru(self,points):
+	if (self.mode==2):
+	    self.obj.set_passthru(points)
         self.data=points
         self.num_points=len(points)
         
@@ -19,6 +23,10 @@ class Curve:
         if mode is "bezier":
             print "mode is 1"
             return 1
+	if mode is "catmull":
+	    print "mode is 2: Catmull Rom"
+	    self.obj=catmull.Catmull()
+	    return 2
     
     def set_auto_control(self):
         if self.num_points==2:
@@ -104,13 +112,14 @@ class Curve:
 		control=self.control[point_id]
 		bx=(numpy.power((1-t),3)*data[0][0])+(3*numpy.power((1-t),2)*t*control[0][0])+(3*(1-t)*numpy.power(t,2)*control[1][0])+(numpy.power(t,3)*data[1][0])
 		by=(numpy.power((1-t),3)*data[0][1])+(3*numpy.power((1-t),2)*t*control[0][1])+(3*(1-t)*numpy.power(t,2)*control[1][1])+(numpy.power(t,3)*data[1][1])
-	print bx,by
+	#print bx,by
 	temp=(bx,by)
         return temp
     
     
     def yieldall(self,steps):
         if self.mode==1:
+	
             if not self.control:
                 self.set_auto_control()
             interv=1.0/(steps-1)
@@ -124,8 +133,10 @@ class Curve:
 		for c in range(len(self.data)-1):
 		    for i in range(steps):
 			a.append(self.make_points_with_control(i*interv,c))
-		print "points returned",a
+		#print "points returned",a
 		return tuple(a)
             
             return a
+	if self.mode==2:
+	    return self.obj.yieldall(steps)
             
