@@ -21,10 +21,14 @@ class Tween(curve.Curve):
     def set_tween(self,tween):
         self.tween=tween
         self.fun={
-            EASEIN: self.easein ,
-            #EASEOUT: self.easeout,
-            #EASEINOUT: self.easeinout,
-        }
+            EASEIN_QUAD: self.easeinquad ,
+            EASEOUT_QUAD: self.easeoutquad,
+            EASEINOUT_QUAD: self.easeinoutquad,
+	    EASEIN_CUBIC: self.easeincubic,
+	    EASEOUT_CUBIC: self.easeoutcubic,
+	    EASEINOUT_CUBIC: self.easeinoutcubic,
+	    
+	}
         
     def yieldall(self):
         lb=0
@@ -42,7 +46,36 @@ class Tween(curve.Curve):
             lb=ub
         return self.result
     
-    def easein(self,t,b,c,d):
-        t/=d*1.0
-        print (d*t*t)+ b, t, c ,b ,d, c*t*t
-        return int(numpy.round(d*t*t+b))
+    def easeinquad(self,t,b,c,d):
+        t/=float(d)
+	return int(numpy.round( d* (t*t) + b ))
+    
+    def easeoutquad(self,t,b,c,d):
+        t/=float(d)
+        return int(numpy.round( (d) * (-( (t-1)*(t-1)) + 1) + b))
+    
+    def easeinoutquad(self,t,b,c,d):
+	t/=float(d/2)
+	print "t:",t
+        if (t < 1):
+	    return int(numpy.round(d/2 * (t*t) + b))
+	t=t-1
+	return int(numpy.round( d/2 * (-((t-1)*(t-1)) + 1) + b + d/2))
+    
+    def easeincubic(self,t,b,c,d):
+        t/=float(d)
+        print (d*t*t*t)+ b, t, c ,b ,d, c*t*t
+        return int(numpy.round(d*(t*t*t)+b))
+    
+    def easeoutcubic(self,t,b,c,d):
+        t/=float(d)
+        return int(numpy.round(d* (((t-1)*(t-1)*(t-1)) + 1) + b))
+    
+    def easeinoutcubic(self,t,b,c,d):
+	t/=float(d/2)
+	if (t < 1):
+	    return int(numpy.round(d/2*t*t*t + b))
+	t=t-1
+	return int(numpy.round( (d/2*(((t-1)*(t-1)*(t-1)) + 1)) + b + d/2))
+    
+    

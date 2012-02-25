@@ -24,7 +24,7 @@ def main():
     #j.set_steps((20,50,20,100,50,150,30,60))
     points1=j.yieldall(60)
     twe=Tween(j)
-    twe.set_tween(EASEIN)
+    twe.set_tween(EASEINOUT_QUAD)
     points1=twe.yieldall()
     #print points1
     #c1,c2=i.get_control()[0],i.get_control()[1]
@@ -44,10 +44,10 @@ def main():
         
         bg.fill((255,255,255))
         
-        pygame.draw.aalines(bg,(255,0,0),0,list(points[i] for i in range(steps)))
+        #pygame.draw.aalines(bg,(255,0,0),0,list(points[i] for i in range(steps)))
         pygame.draw.aalines(bg,(0,0,0),0,list(points1[i] for i in range(steps1)))
         
-        pygame.draw.aalines(bg,(255,0,0),0,((0,500),points[steps]))
+        #pygame.draw.aalines(bg,(255,0,0),0,((0,500),points[steps]))
         pygame.draw.aalines(bg,(0,0,0),0,((0,500),points1[steps1]))
 
         for point in passing_thrus:
