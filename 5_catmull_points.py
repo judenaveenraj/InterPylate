@@ -13,7 +13,7 @@ def main():
     bg=pygame.surface.Surface((500,500),0,24)
     clock=pygame.time.Clock()
     i=Curve("catmull")
-    j=Curve("bezier")    
+    j=Curve("bezier") 
     i.set_passthru(passing_thrus)
     j.set_passthru(passing_thrus)
     steps=2
@@ -34,9 +34,8 @@ def main():
         
         bg.fill((255,255,255))
         
-        pygame.draw.aalines(bg,(255,0,0),0,list(points[i] for i in range(steps)))
-        pygame.draw.aalines(bg,(0,0,0),0,list(points1[i] for i in range(steps1)))
-        
+        pygame.draw.aalines(bg,(255,0,0),0,points)#list(points[i] for i in range(steps)))
+        pygame.draw.aalines(bg,(0,0,0),0,points1)#list(points1[i] for i in range(steps1)))
         #pygame.draw.aalines(bg,(0,0,0),0,(points[0],points[59]))
         for point in passing_thrus:
             pygame.draw.rect(bg,(255,0,0),Rect(point[0],point[1],5,5))

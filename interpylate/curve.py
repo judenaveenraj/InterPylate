@@ -9,6 +9,8 @@ class Curve:
         self.data=[]
         self.control=[]
         self.rhs=[]
+	self.t=[]
+	self.result=None
 	
     def set_passthru(self,points):
 	if (self.mode==2):
@@ -105,38 +107,70 @@ class Curve:
         if self.data and self.control:
 	    
 	    if (point_id == -1):
-		bx=(numpy.power((1-t),3)*self.data[0][0])+(3*numpy.power((1-t),2)*t*self.control[0][0])+(3*(1-t)*numpy.power(t,2)*self.control[1][0])+(numpy.power(t,3)*self.data[1][0])
-		by=(numpy.power((1-t),3)*self.data[0][1])+(3*numpy.power((1-t),2)*t*self.control[0][1])+(3*(1-t)*numpy.power(t,2)*self.control[1][1])+(numpy.power(t,3)*self.data[1][1])
+		bx=(numpy.power((1-t),3)*self.data[0][0])+(3*numpy.power((1-t),2)
+                            *t*self.control[0][0])+(3*(1-t)*numpy.power(t,2)*
+		            self.control[1][0])+(numpy.power(t,3)
+                            *self.data[1][0])
+		by=(numpy.power((1-t),3)*self.data[0][1])+(3*numpy.power((1-t),2)
+		            *t*self.control[0][1])+(3*(1-t)*numpy.power(t,2)*
+		            self.control[1][1])+(numpy.power(t,3)
+		                *self.data[1][1])
 	    if (point_id >= 0):
 		data=[self.data[point_id],self.data[point_id+1]]
 		control=self.control[point_id]
-		bx=(numpy.power((1-t),3)*data[0][0])+(3*numpy.power((1-t),2)*t*control[0][0])+(3*(1-t)*numpy.power(t,2)*control[1][0])+(numpy.power(t,3)*data[1][0])
-		by=(numpy.power((1-t),3)*data[0][1])+(3*numpy.power((1-t),2)*t*control[0][1])+(3*(1-t)*numpy.power(t,2)*control[1][1])+(numpy.power(t,3)*data[1][1])
+		bx=(numpy.power((1-t),3)*data[0][0])+(3*numpy.power((1-t),2)
+		                                      *t*control[0][0])+(3*(1-t)*numpy.power(t,2)*control[1][0])+(numpy.power(t,3)*data[1][0])
+		by=(numpy.power((1-t),3)*data[0][1])+(3*numpy.power((1-t),2)
+		                                      *t*control[0][1])+(3*(1-t)*numpy.power(t,2)*control[1][1])+(numpy.power(t,3)*data[1][1])
 	#print bx,by
 	temp=(bx,by)
         return temp
     
-    
-    def yieldall(self,steps):
-        if self.mode==1:
+    def set_steps(self,steps_tuple):
+	self.t=steps_tuple
 	
+    def yieldall(self,steps=None):
+	self.result=[]
+	if steps:
+	    self.t=[steps for i in range(len(self.data)-1)]
+	print self.t
+	if len(self.t) is not (len(self.data)-1):
+	    raise BaseException(str(len(self.t))+"Length of interval tuples should (n-1) of number of points")
+        
+        if self.mode==1:
             if not self.control:
                 self.set_auto_control()
-            interv=1.0/(steps-1)
-	    a=[]
-	    #For only two points and bezier and with control points
-	    if len(self.data) == 2:
-		a=tuple(self.make_points_with_control(i*interv) for i in range(steps))
 	    
-	    #For more than two points and bezier and with control points
-	    elif (len(self.data)>2):
-		for c in range(len(self.data)-1):
-		    for i in range(steps):
-			a.append(self.make_points_with_control(i*interv,c))
-		#print "points returned",a
-		return tuple(a)
-            
-            return a
+	    
+		#For only two points and bezier and with control points
+		if len(self.data) == 2:
+		    step=self.t[0]
+		    interv==1.0/(step-1)
+		    self.result=tuple(self.make_points_with_control(i*interv) for i in range(step))
+		
+		#For more than two points and bezier and with control points
+		elif (len(self.data)>2):
+#		    for step in self.t:
+#			interv=1.0/(step-1)
+		    for c in range(len(self.data)-1):
+			step=self.t[c]
+			interv=1.0/(step-1)
+			for i in range(step):
+			    self.result.append(self.make_points_with_control(i*interv,c))
+		    #print "points returned",a
+	    return tuple(self.result)
+
 	if self.mode==2:
 	    return self.obj.yieldall(steps)
             
+    def set_closed(self,c=False):
+	try:
+	    if c==True:
+		if self.mode==2:
+		    self.obj.set_closed(1)
+		else:
+		    raise BaseException, "Cannot perform operation on spline type"
+	except BaseException as err:
+	    print err
+	    raise
+	    

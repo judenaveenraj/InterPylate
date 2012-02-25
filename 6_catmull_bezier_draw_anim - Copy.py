@@ -20,10 +20,6 @@ def main():
     steps1=2
     points=i.yieldall(60)
     points1=j.yieldall(60)
-    #c1,c2=i.get_control()[0],i.get_control()[1]
-    print "control",i.get_control()
-    print "No. of points obtained",len(points)
-    
     while 1:
         clock.tick(60)
         steps+=1
@@ -43,7 +39,6 @@ def main():
 
         for point in passing_thrus:
             pygame.draw.rect(bg,(255,0,0),Rect(point[0],point[1],5,5))
-    # 
         
         screen.blit(bg,(0,0))
         pygame.display.update()

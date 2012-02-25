@@ -10,8 +10,6 @@ class Catmull():
         
     def set_passthru(self,points):
         self.data,self.length=points,len(points)
-        if self.data[0]==self.data[self.length-1]:
-            self.closed=1
         
     def yieldall(self,steps):
         for i in range(len(self.data)-1):
@@ -28,13 +26,21 @@ class Catmull():
         a=vector.Vector(p1,p2)
         a=a.get_unit_vector()
         if i == 0:
-            ra=vector.reverse_vector(a)
-            #Creating imaginary points p3,p0 at distance 10 for controls
-            p0=vector.make_point_from_vector(p1,ra,10)
+            if self.closed==1:
+                p0=self.data[self.length-1]
+            else:
+                ra=vector.reverse_vector(a)
+                #Creating imaginary points p3,p0 at distance 10 for controls
+                p0=vector.make_point_from_vector(p1,ra,10)
         else:
             p0=self.data[i-1]
         if (i+2) > (self.length-1):
-            p3=vector.make_point_from_vector(p2,a,10)
+            if self.closed==1:
+                #Second point in the data becomes control point of last spline
+                p3=self.data[1]
+            else:
+                #Else create a control point for last spline
+                p3=vector.make_point_from_vector(p2,a,10)
         else:
             p3=self.data[i+2]
             
@@ -63,4 +69,7 @@ class Catmull():
         ry=0.5*mat0*mat1*mat2y
         temp=(rx,ry)
         self.result.append(temp)
-            
+    
+    def set_closed(self,c):
+        if c==1:
+            self.closed=1
