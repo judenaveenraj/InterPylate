@@ -12,12 +12,12 @@ def main():
     clock=pygame.time.Clock()
     i=Curve("bezier")
     i.set_passthru(((50,250),(450,250)))
-    i.set_auto_control()
+    i.make_it_easy()
     steps=2
     points=i.yieldall(60)
     c1,c2=i.get_control()[0],i.get_control()[1]
     print "control",c1,c2
-    
+    print "points",points
     while 1:
         clock.tick(60)
         steps+=1

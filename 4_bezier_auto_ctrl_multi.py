@@ -14,7 +14,7 @@ def main():
     clock=pygame.time.Clock()
     i=Curve("bezier")
     i.set_passthru(passing_thrus)
-    i.set_auto_control()
+    i.make_it_easy()
     steps=2
     points=i.yieldall(60)
     #c1,c2=i.get_control()[0],i.get_control()[1]
